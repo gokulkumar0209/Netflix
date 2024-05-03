@@ -1,17 +1,25 @@
 import React from "react";
 import Hero from "../components/Hero";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { UserAuth } from "../context/AuthContextProvider";
 
-function Signup() {
+
+const Signup =()=> {
 	const [rememberLogin, setRememberLogin] = useState(true);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const {user, signUp}= UserAuth();
+	const navigate = useNavigate();
 
-	const handleFormSubmit = (e) => {
+	const handleFormSubmit = async (e) => {
 		e.preventDefault();
-		console.log(email);
-		console.log(password);
+		try {
+			await signUp(email, password);
+			navigate("/");
+		} catch(err) {
+			console.log(err);
+		}
 	};
 	return (
 		<>
