@@ -6,20 +6,28 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
 import { AuthContextProvider } from "./context/AuthContextProvider";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
 	const [count, setCount] = useState(0);
 
 	return (
-		<> 
-		<AuthContextProvider>
-			<Navbar></Navbar>
-			<Routes>
-				<Route path="/" element={<Home />}></Route>
-				<Route path="/login" element={<Login />}></Route>
-				<Route path="/signup" element={<Signup />}></Route>
-				<Route path="/profile" element={<Profile />}></Route>
-			</Routes>
+		<>
+			<AuthContextProvider>
+				<Navbar></Navbar>
+				<Routes>
+					<Route path="/" element={<Home />}></Route>
+					<Route path="/login" element={<Login />}></Route>
+					<Route path="/signup" element={<Signup />}></Route>
+					<Route
+						path="/profile"
+						element={
+							<ProtectedRoute>
+								<Profile />
+							</ProtectedRoute>
+						}
+					></Route>
+				</Routes>
 			</AuthContextProvider>
 		</>
 	);
