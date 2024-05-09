@@ -1,26 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createImageUrl } from "../services/movieServices";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { PiPlay, PiPlayBold } from "react-icons/pi";
-import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { UserAuth } from "../context/AuthContextProvider";
 
 function MovieItem({ movie }) {
-	const [like, setLike] = useState(false);
-	const { title, backdrop_path } = movie;
 	const { user } = UserAuth();
+	const [like, setLike] = useState(false);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const isFavourite = await isFav(movie);
+			setLike(isFavourite);
+		};
+		fetchData();
+	}, [movie]); // Trigger re-fetch when movie changes
+
 	const markFavShow = async () => {
 		const userEmail = user?.email;
-		if (userEmail) {
-			const userDoc = doc(db, "users", userEmail);
-			setLike(!like);
-			await updateDoc(userDoc, {
-				favs: arrayUnion({ ...movie }),
-			});
-		} else {
+		if (!userEmail) {
 			alert("Login to save");
+			return;
 		}
+		const userDoc = doc(db, "users", userEmail);
+		setLike(!like); // Update state immediately for user feedback
+		await updateDoc(userDoc, {
+			favs: arrayUnion({ ...movie }),
+		});
+	};
+
+	const isFav = async (movie) => {
+		const userEmail = user?.email;
+		try {
+			if (userEmail) {
+				const userDoc = doc(db, "users", userEmail);
+				const userSnap = await getDoc(userDoc);
+				if (userSnap.exists) {
+					const userData = userSnap.data();
+					if (userData.favs) {
+						const isFavorite = userData.favs.some(
+							(fav) => fav.title === movie.title
+						);
+						return isFavorite;
+					}
+				}
+			}
+		} catch (err) {
+			console.error(err);
+			return false;
+		}
+		return false;
 	};
 
 	return (
@@ -29,8 +60,8 @@ function MovieItem({ movie }) {
 				<div className="">
 					<img
 						className=" w-72 rounded mb-2 "
-						src={createImageUrl(backdrop_path, "original")}
-						alt={title}
+						src={createImageUrl(movie.backdrop_path, "original")}
+						alt={movie.title}
 					></img>
 					<p className="absolute left-32 top-16 opacity-25 hover:opacity-100">
 						<PiPlayBold size={32} color="white" className="" />
