@@ -58,11 +58,13 @@ function MovieItem({ movie }) {
 		<>
 			<div className=" relative  flex flex-none flex-col rounded">
 				<div className="">
-					<img
-						className=" w-72 rounded mb-2 "
-						src={createImageUrl(movie.backdrop_path, "original")}
-						alt={movie.title}
-					></img>
+					<div className="w-72">
+						<img
+							className=" w-72 rounded mb-2 object-cover "
+							src={createImageUrl(movie.backdrop_path, "original")}
+							alt={movie.title}
+						></img>
+					</div>
 					<p className="absolute left-32 top-16 opacity-25 hover:opacity-100">
 						<PiPlayBold size={32} color="white" className="" />
 					</p>
@@ -74,7 +76,7 @@ function MovieItem({ movie }) {
 					onClick={markFavShow}
 					className=" absolute top-0 right-0 mr-2 mt-2  "
 				>
-					{like ? (
+					{isFav ? (
 						<FaHeart
 							onClick={() => setLike(false)}
 							className=" opacity-0 hover:text-xl hover:opacity-100"
